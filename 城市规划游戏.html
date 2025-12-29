@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>城市空间规划师 - 深圳全民健身互动游戏</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 基础重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* 游戏容器 */
+        .game-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* 游戏标题区域 */
+        .game-header {
+            background: linear-gradient(135deg, #0A5CBF 0%, #083a7a 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        .game-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .game-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .game-description {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        /* 游戏主体布局 */
+        .game-main {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 20px;
+            padding: 25px;
+            min-height: 700px;
+        }
+
+        /* 侧边栏通用样式 */
+        .game-sidebar {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .right-sidebar {
+            background-color: #f0f5ff;
+        }
+
+        /* 场景选择器 */
+        .scene-selector h3, .scene-info h3, .facility-library h3,
+        .design-goals h3, .scoring-panel h3, .real-case h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #0A5CBF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scene-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scene-tab {
+            padding: 15px;
+            background-color: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+
+        .scene-tab:hover {
+            border-color: #0A5CBF;
+            transform: translateY(-2px);
+        }
+
+        .scene-tab.active {
+            border-color: #0A5CBF;
+            background-color: #e8f1ff;
+            font-weight: 600;
+        }
+
+        /* 场景信息 */
+        .scene-info {
+            margin-top: 25px;
+        }
+
+        .info-content {
+            background-color: white;
+            padding: 18px;
+            border-radius: 10px;
+            border-left: 4px solid #0A5CBF;
+        }
+
+        .info-content h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #1D1D1F;
+        }
+
+        #sceneDescription {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .scene-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #0A5CBF;
+        }
+
+        /* 设施库 */
+        .facility-library {
+            margin-top: 25px;
+        }
+
+        .library-hint {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .facility-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .facility-item {
+            background-color: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: move;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            user-select: none;
+        }
+
+        .facility-item:hover {
+            border-color: #FF6B35;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .facility-icon {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #0A5CBF;
+        }
+
+        .facility-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .facility-specs {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .facility-cost {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #FF6B35;
+        }
+
+        /* 中间区域 */
+        .game-center {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .planning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .planning-header h2 {
+            color: #1D1D1F;
+            font-size: 1.8rem;
+        }
+
+        .planning-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-badge {
+            background-color: #f0f5ff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .stat-badge .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-badge .stat-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #0A5CBF;
+        }
+
+        /* 规划画布 */
+        .planning-canvas-container {
+            flex: 1;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-wrapper {
+            flex: 1;
+            position: relative;
+            background-color: #e8eef7;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px dashed #b8c5db;
+            min-height: 450px;
+        }
+
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(200, 200, 200, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 200, 200, 0.2) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .scene-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .planning-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+
+        /* 放置的设施 */
+        .placed-facility {
+            position: absolute;
+            background-color: rgba(10, 92, 191, 0.85);
+            border: 2px solid #0A5CBF;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            padding: 10px;
+            cursor: move;
+            transition: all 0.2s ease;
+            z-index: 20;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .placed-facility:hover {
+            background-color: rgba(10, 92, 191, 0.95);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 30;
+        }
+
+        .placed-facility .facility-icon {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .placed-facility .facility-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+
+        .placed-facility .facility-size {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.7rem;
+            color: #ff4444;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .placed-facility:hover .delete-btn {
+            opacity: 1;
+        }
+
+        /* 无障碍通道 */
+        .accessibility-path {
+            position: absolute;
+            background-color: rgba(52, 199, 89, 0.6);
+            border: 2px dashed #34C759;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* 画布控制 */
+        .canvas-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            padding: 12px 25px;
+            background-color: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            border-color: #0A5CBF;
+            background-color: #f0f5ff;
+        }
+
+        .control-btn.primary {
+            background-color: #0A5CBF;
+            color: white;
+            border-color: #0A5CBF;
+        }
+
+        .control-btn.primary:hover {
+            background-color: #083a7a;
+        }
+
+        /* 实时反馈 */
+        .live-feedback {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .live-feedback h3 {
+            color: #FF6B35;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feedback-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+        }
+
+        /* 设计目标 */
+        .goals-list {
+            list-style: none;
+        }
+
+        .goal-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background-color: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .goal-item.achieved {
+            border-left-color: #34C759;
+            background-color: rgba(52, 199, 89, 0.05);
+        }
+
+        .goal-item i {
+            color: #666;
+            width: 20px;
+        }
+
+        .goal-item.achieved i {
+            color: #34C759;
+        }
+
+        .goal-progress, .goal-check {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .goal-item.achieved .goal-progress {
+            color: #34C759;
+        }
+
+        .goal-item.achieved .goal-check {
+            color: #34C759;
+        }
+
+        /* 评分面板 */
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .score-circle {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-value span:first-child {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0A5CBF;
+        }
+
+        .score-max {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .score-breakdown {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .breakdown-value {
+            font-weight: 600;
+            color: #0A5CBF;
+        }
+
+        /* 真实案例 */
+        .case-content {
+            background-color: white;
+            padding: 18px;
+            border-radius: 10px;
+            border-top: 4px solid #0A5CBF;
+        }
+
+        .case-content h4 {
+            color: #0A5CBF;
+            margin-bottom: 10px;
+        }
+
+        .case-content p {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            color: #666;
+        }
+
+        .case-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .case-stat {
+            text-align: center;
+        }
+
+        .case-value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #0A5CBF;
+        }
+
+        .case-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* 游戏说明 */
+        .game-instructions {
+            background-color: #f0f5ff;
+            border-top: 2px solid #d0dfff;
+            padding: 20px 30px;
+        }
+
+        .instructions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .instructions-header h3 {
+            color: #0A5CBF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #0A5CBF;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .instructions-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #d0dfff;
+        }
+
+        .instruction-block h4 {
+            color: #1D1D1F;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .instruction-block p, .instruction-block ul {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .instruction-block ul {
+            padding-left: 20px;
+        }
+
+        .instruction-block li {
+            margin-bottom: 8px;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background-color: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.4s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            background: linear-gradient(135deg, #0A5CBF 0%, #083a7a 100%);
+            color: white;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.8rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .close-modal:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-content {
+            padding: 30px;
+        }
+
+        .result-score {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .final-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1D1D1F;
+            margin-bottom: 10px;
+        }
+
+        .final-score span {
+            color: #0A5CBF;
+        }
+
+        .score-grade {
+            font-size: 1.3rem;
+            color: #FF6B35;
+            font-weight: 600;
+        }
+
+        .result-details {
+            margin-bottom: 30px;
+        }
+
+        .result-details h3 {
+            margin-bottom: 20px;
+            color: #1D1D1F;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .result-item {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #0A5CBF;
+            margin-bottom: 12px;
+        }
+
+        .result-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background-color: #0A5CBF;
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+
+        .result-feedback {
+            margin-bottom: 30px;
+        }
+
+        .result-feedback h3 {
+            margin-bottom: 15px;
+            color: #1D1D1F;
+        }
+
+        #resultFeedbackText {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .improvement-tips {
+            background-color: #fff8e1;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #FFC107;
+        }
+
+        .improvement-tips h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: #1D1D1F;
+        }
+
+        .improvement-tips ul {
+            padding-left: 20px;
+        }
+
+        .improvement-tips li {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .modal-btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: 2px solid #e0e0e0;
+            background-color: white;
+            font-size: 1rem;
+        }
+
+        .modal-btn:hover {
+            border-color: #0A5CBF;
+            background-color: #f0f5ff;
+        }
+
+        .modal-btn.primary {
+            background-color: #0A5CBF;
+            color: white;
+            border-color: #0A5CBF;
+        }
+
+        .modal-btn.primary:hover {
+            background-color: #083a7a;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .game-main {
+                grid-template-columns: 250px 1fr 250px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .game-main {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+                gap: 20px;
+            }
+            
+            .game-sidebar, .right-sidebar {
+                width: 100%;
+            }
+            
+            .instructions-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .planning-stats {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .stat-badge {
+                min-width: 100px;
+            }
+            
+            .score-display {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .facility-list {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+            
+            .modal-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 游戏标题和说明 -->
+        <header class="game-header">
+            <h1><i class="fas fa-city"></i> 城市空间规划师</h1>
+            <p class="game-subtitle">深圳"边角料"空间改造挑战</p>
+            <p class="game-description">
+                欢迎来到深圳！这座城市土地资源紧张，但善于在有限空间创造无限可能。<br>
+                您的任务是将三个典型的"边角料"空间改造为市民健身场所。
+            </p>
+        </header>
+
+        <!-- 游戏主体 -->
+        <div class="game-main">
+            <!-- 左侧：场景选择和信息面板 -->
+            <div class="game-sidebar">
+                <!-- 场景选择 -->
+                <div class="scene-selector">
+                    <h3><i class="fas fa-map"></i> 选择改造场景</h3>
+                    <div class="scene-tabs">
+                        <button class="scene-tab active" data-scene="underbridge">
+                            <i class="fas fa-bridge"></i>
+                            <span>立交桥下空间</span>
+                        </button>
+                        <button class="scene-tab" data-scene="metro">
+                            <i class="fas fa-train-subway"></i>
+                            <span>地铁站内空间</span>
+                        </button>
+                        <button class="scene-tab" data-scene="rooftop">
+                            <i class="fas fa-building"></i>
+                            <span>城中村屋顶</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 当前场景信息 -->
+                <div class="scene-info">
+                    <h3><i class="fas fa-info-circle"></i> 场景详情</h3>
+                    <div class="info-content">
+                        <h4 id="sceneTitle">立交桥下空间</h4>
+                        <p id="sceneDescription">
+                            位于罗湖区雅园立交桥下，面积约1200平方米。原为灰色闲置空间，光照不足。
+                        </p>
+                        <div class="scene-stats">
+                            <div class="stat">
+                                <span class="stat-label">可用面积</span>
+                                <span class="stat-value" id="availableArea">1200 m²</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">预算</span>
+                                <span class="stat-value" id="budget">¥800,000</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">光照条件</span>
+                                <span class="stat-value" id="lightCondition">较差</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设施库 -->
+                <div class="facility-library">
+                    <h3><i class="fas fa-dumbbell"></i> 可选的健身设施</h3>
+                    <p class="library-hint">拖动设施到规划区域，合理布局</p>
+                    
+                    <div class="facility-list" id="facilityList">
+                        <!-- 设施将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间：规划区域 -->
+            <div class="game-center">
+                <!-- 规划区域标题 -->
+                <div class="planning-header">
+                    <h2>规划区域</h2>
+                    <div class="planning-stats">
+                        <div class="stat-badge">
+                            <span class="stat-label">已用面积</span>
+                            <span class="stat-value" id="usedArea">0 m²</span>
+                        </div>
+                        <div class="stat-badge">
+                            <span class="stat-label">剩余预算</span>
+                            <span class="stat-value" id="remainingBudget">¥800,000</span>
+                        </div>
+                        <div class="stat-badge">
+                            <span class="stat-label">服务人口</span>
+                            <span class="stat-value" id="servedPeople">0 人</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 规划画布 -->
+                <div class="planning-canvas-container">
+                    <div class="canvas-wrapper">
+                        <!-- 网格背景 -->
+                        <div class="grid-overlay" id="gridOverlay"></div>
+                        
+                        <!-- 规划区域 -->
+                        <div class="planning-canvas" id="planningCanvas">
+                            <!-- 放置的设施将在这里显示 -->
+                        </div>
+                        
+                        <!-- 场景背景图 -->
+                        <div class="scene-background" id="sceneBackground"></div>
+                    </div>
+                    
+                    <!-- 画布控制 -->
+                    <div class="canvas-controls">
+                        <button id="clearBtn" class="control-btn">
+                            <i class="fas fa-trash"></i> 清空设计
+                        </button>
+                        <button id="hintBtn" class="control-btn">
+                            <i class="fas fa-lightbulb"></i> 查看提示
+                        </button>
+                        <button id="submitBtn" class="control-btn primary">
+                            <i class="fas fa-check"></i> 提交设计
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 实时反馈 -->
+                <div class="live-feedback">
+                    <h3><i class="fas fa-comment"></i> 规划反馈</h3>
+                    <div class="feedback-content" id="feedbackContent">
+                        请开始规划！拖动左侧设施到规划区域。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：评分面板和目标 -->
+            <div class="game-sidebar right-sidebar">
+                <!-- 设计目标 -->
+                <div class="design-goals">
+                    <h3><i class="fas fa-bullseye"></i> 设计目标</h3>
+                    <ul class="goals-list">
+                        <li class="goal-item" data-goal="space">
+                            <i class="fas fa-square"></i>
+                            <span>空间利用率 > 70%</span>
+                            <span class="goal-progress" id="spaceProgress">0%</span>
+                        </li>
+                        <li class="goal-item" data-goal="diversity">
+                            <i class="fas fa-shapes"></i>
+                            <span>至少3种设施类型</span>
+                            <span class="goal-progress" id="diversityProgress">0/3</span>
+                        </li>
+                        <li class="goal-item" data-goal="accessibility">
+                            <i class="fas fa-wheelchair"></i>
+                            <span>无障碍通道连接</span>
+                            <span class="goal-check" id="accessibilityCheck">❌</span>
+                        </li>
+                        <li class="goal-item" data-goal="budget">
+                            <i class="fas fa-coins"></i>
+                            <span>预算使用 > 60%</span>
+                            <span class="goal-progress" id="budgetProgress">0%</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 当前评分 -->
+                <div class="scoring-panel">
+                    <h3><i class="fas fa-star"></i> 当前评分</h3>
+                    <div class="score-display">
+                        <div class="score-circle">
+                            <svg width="120" height="120" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="54" fill="none" stroke="#e0e0e0" stroke-width="12"/>
+                                <circle id="scoreRing" cx="60" cy="60" r="54" fill="none" stroke="#0A5CBF" 
+                                        stroke-width="12" stroke-dasharray="339.292" stroke-dashoffset="339.292"
+                                        transform="rotate(-90 60 60)"/>
+                            </svg>
+                            <div class="score-value">
+                                <span id="currentScore">0</span>
+                                <span class="score-max">/100</span>
+                            </div>
+                        </div>
+                        <div class="score-breakdown">
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">空间利用</span>
+                                <span class="breakdown-value" id="spaceScore">0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">设施多样性</span>
+                                <span class="breakdown-value" id="diversityScore">0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">无障碍</span>
+                                <span class="breakdown-value" id="accessibilityScore">0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-label">预算效率</span>
+                                <span class="breakdown-value" id="budgetScore">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 深圳真实案例 -->
+                <div class="real-case">
+                    <h3><i class="fas fa-map-marker-alt"></i> 深圳真实案例</h3>
+                    <div class="case-content" id="caseContent">
+                        <h4>雅园立交桥下空间改造</h4>
+                        <p>深圳将1.2万平方米的闲置桥下空间，改造为包含足球场、篮球场、健身路径的社区体育公园，服务周边5万居民。</p>
+                        <div class="case-stats">
+                            <div class="case-stat">
+                                <div class="case-value">5万+</div>
+                                <div class="case-label">服务居民</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-value">85%</div>
+                                <div class="case-label">空间利用率</div>
+                            </div>
+                            <div class="case-stat">
+                                <div class="case-value">4种</div>
+                                <div class="case-label">运动类型</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏说明 -->
+        <div class="game-instructions">
+            <div class="instructions-header">
+                <h3><i class="fas fa-graduation-cap"></i> 游戏说明与学习目标</h3>
+                <button id="toggleInstructions" class="toggle-btn">
+                    <i class="fas fa-chevron-up"></i>
+                </button>
+            </div>
+            <div class="instructions-content" id="instructionsContent">
+                <div class="instruction-block">
+                    <h4>游戏目标</h4>
+                    <p>合理利用城市"边角料"空间，设计一个功能完善、服务多人群的社区健身空间。</p>
+                </div>
+                <div class="instruction-block">
+                    <h4>深圳经验</h4>
+                    <p>深圳通过"空间效率革命"，将立交桥下、地铁站内、屋顶等闲置空间改造为市民健身场所，实现土地资源的高效利用。</p>
+                </div>
+                <div class="instruction-block">
+                    <h4>学习要点</h4>
+                    <ul>
+                        <li>理解城市空间复合利用的重要性</li>
+                        <li>学习如何平衡不同人群的健身需求</li>
+                        <li>了解无障碍设计在公共空间中的必要性</li>
+                        <li>掌握预算约束下的最优规划方法</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提交结果模态框 -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2><i class="fas fa-medal"></i> 设计成果评估</h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="result-score">
+                    <div class="final-score">
+                        最终评分: <span id="finalScore">0</span>/100
+                    </div>
+                    <div class="score-grade" id="scoreGrade">初级规划师</div>
+                </div>
+                
+                <div class="result-details">
+                    <h3>详细评估</h3>
+                    <div class="result-grid">
+                        <div class="result-item">
+                            <div class="result-label">空间利用率</div>
+                            <div class="result-value" id="resultSpace">0%</div>
+                            <div class="result-bar">
+                                <div class="bar-fill" id="spaceBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">设施多样性</div>
+                            <div class="result-value" id="resultDiversity">0种</div>
+                            <div class="result-bar">
+                                <div class="bar-fill" id="diversityBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">无障碍设计</div>
+                            <div class="result-value" id="resultAccessibility">未实现</div>
+                            <div class="result-bar">
+                                <div class="bar-fill" id="accessibilityBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">预算效率</div>
+                            <div class="result-value" id="resultBudget">0%</div>
+                            <div class="result-bar">
+                                <div class="bar-fill" id="budgetBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-feedback">
+                    <h3>设计反馈</h3>
+                    <p id="resultFeedbackText">等待评估...</p>
+                    
+                    <div class="improvement-tips">
+                        <h4><i class="fas fa-lightbulb"></i> 改进建议</h4>
+                        <ul id="improvementTips">
+                            <!-- 改进建议将通过JavaScript动态生成 -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="tryAgainBtn" class="modal-btn">
+                        <i class="fas fa-redo"></i> 重新设计
+                    </button>
+                    <button id="nextSceneBtn" class="modal-btn primary">
+                        下一个场景 <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据
+        const gameData = {
+            // 场景数据
+            scenes: {
+                underbridge: {
+                    id: "underbridge",
+                    name: "立交桥下空间",
+                    description: "位于罗湖区雅园立交桥下，面积约1200平方米。原为灰色闲置空间，光照不足，需要合理规划照明和排水系统。",
+                    area: 1200,
+                    budget: 800000,
+                    lightCondition: "较差",
+                    background: "bridge",
+                    constraints: ["需要照明系统", "需考虑排水", "噪音控制"]
+                },
+                metro: {
+                    id: "metro",
+                    name: "地铁站内空间",
+                    description: "位于黄木岗地铁交通枢纽内，面积约800平方米。人流量大，空间高度有限，需考虑通风和安全通道。",
+                    area: 800,
+                    budget: 600000,
+                    lightCondition: "良好（人工照明）",
+                    background: "metro",
+                    constraints: ["高度限制", "通风要求", "安全通道"]
+                },
+                rooftop: {
+                    id: "rooftop",
+                    name: "城中村屋顶",
+                    description: "位于龙岗区某城中村屋顶，面积约600平方米。承重有限，需考虑防风和防晒措施。",
+                    area: 600,
+                    budget: 400000,
+                    lightCondition: "极好（自然光）",
+                    background: "rooftop",
+                    constraints: ["承重限制", "防风要求", "防晒措施"]
+                }
+            },
+            
+            // 设施数据
+            facilities: [
+                {
+                    id: "smart_gym",
+                    name: "智能健身区",
+                    icon: "fas fa-dumbbell",
+                    size: { width: 6, height: 4 }, // 网格单位
+                    area: 150, // 平方米
+                    cost: 120000,
+                    color: "#0A5CBF",
+                    description: "包含智能跑步机、力量训练器等，可连接APP记录数据",
+                    servedPeople: 20,
+                    suitableScenes: ["underbridge", "metro", "rooftop"]
+                },
+                {
+                    id: "badminton",
+                    name: "羽毛球场",
+                    icon: "fas fa-table-tennis-paddle-ball",
+                    size: { width: 8, height: 5 },
+                    area: 200,
+                    cost: 80000,
+                    color: "#FF6B35",
+                    description: "标准羽毛球场地，包含照明和防滑地面",
+                    servedPeople: 8,
+                    suitableScenes: ["underbridge", "metro"]
+                },
+                {
+                    id: "basketball",
+                    name: "篮球半场",
+                    icon: "fas fa-basketball",
+                    size: { width: 10, height: 7 },
+                    area: 280,
+                    cost: 150000,
+                    color: "#34C759",
+                    description: "标准篮球半场，适合3对3比赛",
+                    servedPeople: 12,
+                    suitableScenes: ["underbridge"]
+                },
+                {
+                    id: "children",
+                    name: "儿童活动区",
+                    icon: "fas fa-child",
+                    size: { width: 5, height: 5 },
+                    area: 100,
+                    cost: 60000,
+                    color: "#FFC107",
+                    description: "安全游乐设施，适合亲子活动",
+                    servedPeople: 15,
+                    suitableScenes: ["underbridge", "rooftop"]
+                },
+                {
+                    id: "yoga",
+                    name: "瑜伽/太极区",
+                    icon: "fas fa-spa",
+                    size: { width: 4, height: 4 },
+                    area: 80,
+                    cost: 40000,
+                    color: "#9C27B0",
+                    description: "安静放松区域，适合瑜伽、太极等低强度运动",
+                    servedPeople: 10,
+                    suitableScenes: ["underbridge", "metro", "rooftop"]
+                },
+                {
+                    id: "tabletennis",
+                    name: "乒乓球区",
+                    icon: "fas fa-table-tennis",
+                    size: { width: 5, height: 3 },
+                    area: 60,
+                    cost: 30000,
+                    color: "#2196F3",
+                    description: "2个标准乒乓球台，适合各年龄段",
+                    servedPeople: 8,
+                    suitableScenes: ["metro", "rooftop"]
+                }
+            ],
+            
+            // 无障碍通道
+            accessibilityPath: {
+                width: 2, // 网格单位
+                cost: 50000,
+                color: "#34C759"
+            }
+        };
+
+        // 游戏状态
+        let gameState = {
+            currentScene: "underbridge",
+            placedFacilities: [],
+            placedAccessibility: false,
+            usedArea: 0,
+            usedBudget: 0,
+            servedPeople: 0,
+            score: 0
+        };
+
+        // 网格系统
+        const GRID_SIZE = 40; // 每个网格的像素大小
+        let canvasWidth = 0;
+        let canvasHeight = 0;
+
+        // DOM元素
+        let planningCanvas;
+        let sceneBackground;
+
+        // 初始化游戏
+        function initGame() {
+            // 获取DOM元素
+            planningCanvas = document.getElementById('planningCanvas');
+            sceneBackground = document.getElementById('sceneBackground');
+            
+            // 初始化场景选择
+            initSceneSelection();
+            
+            // 初始化设施库
+            initFacilityLibrary();
+            
+            // 初始化画布
+            initCanvas();
+            
+            // 初始化事件监听
+            initEventListeners();
+            
+            // 加载第一个场景
+            loadScene('underbridge');
+            
+            // 更新UI
+            updateUI();
+        }
+
+        // 初始化场景选择
+        function initSceneSelection() {
+            const sceneTabs = document.querySelectorAll('.scene-tab');
+            
+            sceneTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有active类
+                    sceneTabs.forEach(t => t.classList.remove('active'));
+                    // 添加当前active类
+                    this.classList.add('active');
+                    
+                    // 加载场景
+                    const sceneId = this.dataset.scene;
+                    loadScene(sceneId);
+                });
+            });
+        }
+
+        // 初始化设施库
+        function initFacilityLibrary() {
+            const facilityList = document.getElementById('facilityList');
+            facilityList.innerHTML = '';
+            
+            gameData.facilities.forEach(facility => {
+                const facilityElement = document.createElement('div');
+                facilityElement.className = 'facility-item';
+                facilityElement.id = `facility-${facility.id}`;
+                facilityElement.draggable = true;
+                facilityElement.dataset.facilityId = facility.id;
+                
+                facilityElement.innerHTML = `
+                    <div class="facility-icon">
+                        <i class="${facility.icon}"></i>
+                    </div>
+                    <div class="facility-name">${facility.name}</div>
+                    <div class="facility-specs">${facility.size.width}×${facility.size.height}格</div>
+                    <div class="facility-cost">¥${facility.cost.toLocaleString()}</div>
+                `;
+                
+                // 添加拖拽事件
+                facilityElement.addEventListener('dragstart', handleDragStart);
+                
+                facilityList.appendChild(facilityElement);
+            });
+        }
+
+        // 初始化画布
+        function initCanvas() {
+            const canvasContainer = document.querySelector('.canvas-wrapper');
+            canvasWidth = canvasContainer.clientWidth;
+            canvasHeight = canvasContainer.clientHeight;
+            
+            // 创建网格
+            createGrid();
+            
+            // 设置画布尺寸
+            planningCanvas.style.width = `${canvasWidth}px`;
+            planningCanvas.style.height = `${canvasHeight}px`;
+            
+            // 添加放置事件
+            planningCanvas.addEventListener('dragover', handleDragOver);
+            planningCanvas.addEventListener('drop', handleDrop);
+        }
+
+        // 创建网格
+        function createGrid() {
+            const gridOverlay = document.getElementById('gridOverlay');
+            gridOverlay.style.backgroundSize = `${GRID_SIZE}px ${GRID_SIZE}px`;
+        }
+
+        // 初始化事件监听
+        function initEventListeners() {
+            // 清空按钮
+            document.getElementById('clearBtn').addEventListener('click', clearDesign);
+            
+            // 提示按钮
+            document.getElementById('hintBtn').addEventListener('click', showHint);
+            
+            // 提交按钮
+            document.getElementById('submitBtn').addEventListener('click', submitDesign);
+            
+            // 结果模态框按钮
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('tryAgainBtn').addEventListener('click', tryAgain);
+            document.getElementById('nextSceneBtn').addEventListener('click', nextScene);
+            
+            // 游戏说明折叠
+            document.getElementById('toggleInstructions').addEventListener('click', toggleInstructions);
+            
+            // 窗口调整时重新计算画布尺寸
+            window.addEventListener('resize', function() {
+                const canvasContainer = document.querySelector('.canvas-wrapper');
+                canvasWidth = canvasContainer.clientWidth;
+                canvasHeight = canvasContainer.clientHeight;
+                
+                planningCanvas.style.width = `${canvasWidth}px`;
+                planningCanvas.style.height = `${canvasHeight}px`;
+                
+                // 重新放置设施
+                repositionFacilities();
+            });
+        }
+
+        // 加载场景
+        function loadScene(sceneId) {
+            gameState.currentScene = sceneId;
+            gameState.placedFacilities = [];
+            gameState.placedAccessibility = false;
+            gameState.usedArea = 0;
+            gameState.usedBudget = 0;
+            gameState.servedPeople = 0;
+            
+            const scene = gameData.scenes[sceneId];
+            
+            // 更新场景信息
+            document.getElementById('sceneTitle').textContent = scene.name;
+            document.getElementById('sceneDescription').textContent = scene.description;
+            document.getElementById('availableArea').textContent = `${scene.area} m²`;
+            document.getElementById('budget').textContent = `¥${scene.budget.toLocaleString()}`;
+            document.getElementById('lightCondition').textContent = scene.lightCondition;
+            
+            // 更新场景背景（使用占位背景）
+            sceneBackground.style.backgroundImage = `url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80')`;
+            
+            // 清空画布
+            planningCanvas.innerHTML = '';
+            
+            // 更新UI
+            updateUI();
+            
+            // 更新实时反馈
+            updateFeedback("已加载新场景。请从左侧选择设施，拖动到规划区域。");
+        }
+
+        // 拖拽开始
+        function handleDragStart(e) {
+            const facilityId = e.target.dataset.facilityId;
+            e.dataTransfer.setData('text/plain', facilityId);
+            e.dataTransfer.effectAllowed = 'copy';
+        }
+
+        // 拖拽悬停
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+
+        // 放置设施
+        function handleDrop(e) {
+            e.preventDefault();
+            
+            const facilityId = e.dataTransfer.getData('text/plain');
+            const facility = gameData.facilities.find(f => f.id === facilityId);
+            
+            if (!facility) return;
+            
+            // 检查设施是否适合当前场景
+            if (!facility.suitableScenes.includes(gameState.currentScene)) {
+                updateFeedback(`❌ ${facility.name}不适合${gameData.scenes[gameState.currentScene].name}。请选择其他设施。`);
+                return;
+            }
+            
+            // 计算放置位置（转换为网格坐标）
+            const rect = planningCanvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / GRID_SIZE);
+            const y = Math.floor((e.clientY - rect.top) / GRID_SIZE);
+            
+            // 检查是否超出边界
+            const maxX = Math.floor(canvasWidth / GRID_SIZE);
+            const maxY = Math.floor(canvasHeight / GRID_SIZE);
+            
+            if (x + facility.size.width > maxX || y + facility.size.height > maxY) {
+                updateFeedback(`❌ 空间不足，无法放置${facility.name}。请选择其他位置。`);
+                return;
+            }
+            
+            // 检查是否与其他设施重叠
+            if (checkOverlap(x, y, facility.size.width, facility.size.height)) {
+                updateFeedback(`❌ 位置与其他设施重叠。请选择其他位置。`);
+                return;
+            }
+            
+            // 检查预算
+            const sceneBudget = gameData.scenes[gameState.currentScene].budget;
+            if (gameState.usedBudget + facility.cost > sceneBudget) {
+                updateFeedback(`❌ 预算不足！${facility.name}需要¥${facility.cost.toLocaleString()}，但只剩¥${(sceneBudget - gameState.usedBudget).toLocaleString()}。`);
+                return;
+            }
+            
+            // 检查面积
+            const sceneArea = gameData.scenes[gameState.currentScene].area;
+            if (gameState.usedArea + facility.area > sceneArea) {
+                updateFeedback(`❌ 面积不足！${facility.name}需要${facility.area}m²，但只剩${sceneArea - gameState.usedArea}m²。`);
+                return;
+            }
+            
+            // 添加设施
+            addFacility(facility, x, y);
+            
+            // 更新实时反馈
+            updateFeedback(`✅ 已放置${facility.name}。服务${facility.servedPeople}人，成本¥${facility.cost.toLocaleString()}，占用${facility.area}m²。`);
+        }
+
+        // 检查重叠
+        function checkOverlap(x, y, width, height) {
+            for (const placed of gameState.placedFacilities) {
+                if (!(x >= placed.x + placed.width || 
+                      x + width <= placed.x || 
+                      y >= placed.y + placed.height || 
+                      y + height <= placed.y)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // 添加设施到画布
+        function addFacility(facility, gridX, gridY) {
+            // 计算像素位置
+            const pixelX = gridX * GRID_SIZE;
+            const pixelY = gridY * GRID_SIZE;
+            const pixelWidth = facility.size.width * GRID_SIZE;
+            const pixelHeight = facility.size.height * GRID_SIZE;
+            
+            // 创建设施元素
+            const facilityElement = document.createElement('div');
+            facilityElement.className = 'placed-facility';
+            facilityElement.style.left = `${pixelX}px`;
+            facilityElement.style.top = `${pixelY}px`;
+            facilityElement.style.width = `${pixelWidth}px`;
+            facilityElement.style.height = `${pixelHeight}px`;
+            facilityElement.style.backgroundColor = facility.color;
+            
+            facilityElement.innerHTML = `
+                <div class="facility-icon">
+                    <i class="${facility.icon}"></i>
+                </div>
+                <div class="facility-name">${facility.name}</div>
+                <div class="facility-size">${facility.size.width}×${facility.size.height}</div>
+                <button class="delete-btn" title="删除">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // 添加删除事件
+            const deleteBtn = facilityElement.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                removeFacility(facility.id, gridX, gridY);
+            });
+            
+            // 添加拖拽事件（可以移动设施）
+            facilityElement.draggable = true;
+            facilityElement.addEventListener('dragstart', function(e) {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    type: 'move',
+                    facilityId: facility.id,
+                    originalX: gridX,
+                    originalY: gridY
+                }));
+            });
+            
+            planningCanvas.appendChild(facilityElement);
+            
+            // 添加到游戏状态
+            gameState.placedFacilities.push({
+                id: facility.id,
+                x: gridX,
+                y: gridY,
+                width: facility.size.width,
+                height: facility.size.height,
+                facility: facility
+            });
+            
+            // 更新游戏状态
+            gameState.usedArea += facility.area;
+            gameState.usedBudget += facility.cost;
+            gameState.servedPeople += facility.servedPeople;
+            
+            // 更新UI
+            updateUI();
+        }
+
+        // 移除设施
+        function removeFacility(facilityId, gridX, gridY) {
+            // 从游戏状态中移除
+            const index = gameState.placedFacilities.findIndex(f => 
+                f.id === facilityId && f.x === gridX && f.y === gridY);
+            
+            if (index !== -1) {
+                const facility = gameState.placedFacilities[index];
+                
+                // 更新游戏状态
+                gameState.usedArea -= facility.facility.area;
+                gameState.usedBudget -= facility.facility.cost;
+                gameState.servedPeople -= facility.facility.servedPeople;
+                
+                // 从数组中移除
+                gameState.placedFacilities.splice(index, 1);
+                
+                // 从DOM中移除
+                const facilityElements = document.querySelectorAll('.placed-facility');
+                facilityElements[index].remove();
+                
+                // 更新UI
+                updateUI();
+                
+                // 更新实时反馈
+                updateFeedback(`已移除${facility.facility.name}。释放${facility.facility.area}m²空间和¥${facility.facility.cost.toLocaleString()}预算。`);
+            }
+        }
+
+        // 重新放置设施（窗口调整时）
+        function repositionFacilities() {
+            const facilityElements = document.querySelectorAll('.placed-facility');
+            
+            facilityElements.forEach((element, index) => {
+                if (index < gameState.placedFacilities.length) {
+                    const placed = gameState.placedFacilities[index];
+                    const pixelX = placed.x * GRID_SIZE;
+                    const pixelY = placed.y * GRID_SIZE;
+                    
+                    element.style.left = `${pixelX}px`;
+                    element.style.top = `${pixelY}px`;
+                }
+            });
+        }
+
+        // 清空设计
+        function clearDesign() {
+            if (confirm("确定要清空所有设计吗？")) {
+                gameState.placedFacilities = [];
+                gameState.placedAccessibility = false;
+                gameState.usedArea = 0;
+                gameState.usedBudget = 0;
+                gameState.servedPeople = 0;
+                
+                planningCanvas.innerHTML = '';
+                
+                updateUI();
+                updateFeedback("已清空所有设计。可以重新开始规划。");
+            }
+        }
+
+        // 显示提示
+        function showHint() {
+            const scene = gameData.scenes[gameState.currentScene];
+            let hint = "";
+            
+            switch(gameState.currentScene) {
+                case "underbridge":
+                    hint = "💡 立交桥下空间较大，适合放置篮球场等大型设施，但需注意照明和排水设计。";
+                    break;
+                case "metro":
+                    hint = "💡 地铁站内空间高度有限，适合乒乓球、瑜伽等低高度设施，需确保安全通道畅通。";
+                    break;
+                case "rooftop":
+                    hint = "💡 屋顶承重有限，适合儿童活动区、瑜伽区等轻量设施，需考虑防风防晒措施。";
+                    break;
+            }
+            
+            updateFeedback(hint);
+        }
+
+        // 更新UI
+        function updateUI() {
+            const scene = gameData.scenes[gameState.currentScene];
+            
+            // 更新统计
+            document.getElementById('usedArea').textContent = `${gameState.usedArea} m²`;
+            document.getElementById('remainingBudget').textContent = `¥${(scene.budget - gameState.usedBudget).toLocaleString()}`;
+            document.getElementById('servedPeople').textContent = `${gameState.servedPeople} 人`;
+            
+            // 计算目标进度
+            const spaceUtilization = Math.round((gameState.usedArea / scene.area) * 100);
+            const budgetUtilization = Math.round((gameState.usedBudget / scene.budget) * 100);
+            
+            // 设施类型数量
+            const facilityTypes = new Set(gameState.placedFacilities.map(f => f.id));
+            const diversityCount = facilityTypes.size;
+            
+            // 无障碍设计检查（简化：如果放置了至少3个设施且它们之间有空隙，则认为有通道）
+            const hasAccessibility = gameState.placedFacilities.length >= 3;
+            
+            // 更新目标进度
+            document.getElementById('spaceProgress').textContent = `${spaceUtilization}%`;
+            document.getElementById('diversityProgress').textContent = `${diversityCount}/3`;
+            document.getElementById('accessibilityCheck').textContent = hasAccessibility ? "✅" : "❌";
+            document.getElementById('budgetProgress').textContent = `${budgetUtilization}%`;
+            
+            // 更新目标项状态
+            updateGoalStatus('space', spaceUtilization >= 70);
+            updateGoalStatus('diversity', diversityCount >= 3);
+            updateGoalStatus('accessibility', hasAccessibility);
+            updateGoalStatus('budget', budgetUtilization >= 60);
+            
+            // 计算并更新分数
+            calculateScore(spaceUtilization, diversityCount, hasAccessibility, budgetUtilization);
+        }
+
+        // 更新目标状态
+        function updateGoalStatus(goalId, achieved) {
+            const goalItem = document.querySelector(`.goal-item[data-goal="${goalId}"]`);
+            if (achieved) {
+                goalItem.classList.add('achieved');
+            } else {
+                goalItem.classList.remove('achieved');
+            }
+        }
+
+        // 计算分数
+        function calculateScore(spaceUtilization, diversityCount, hasAccessibility, budgetUtilization) {
+            let totalScore = 0;
+            
+            // 空间利用率分数（0-30分）
+            const spaceScore = Math.min(spaceUtilization / 100 * 30, 30);
+            document.getElementById('spaceScore').textContent = Math.round(spaceScore);
+            
+            // 设施多样性分数（0-25分）
+            const diversityScore = Math.min(diversityCount / 3 * 25, 25);
+            document.getElementById('diversityScore').textContent = Math.round(diversityScore);
+            
+            // 无障碍设计分数（0-20分）
+            const accessibilityScore = hasAccessibility ? 20 : 0;
+            document.getElementById('accessibilityScore').textContent = accessibilityScore;
+            
+            // 预算效率分数（0-25分）
+            const budgetScore = Math.min(budgetUtilization / 100 * 25, 25);
+            document.getElementById('budgetScore').textContent = Math.round(budgetScore);
+            
+            // 总分
+            totalScore = spaceScore + diversityScore + accessibilityScore + budgetScore;
+            gameState.score = Math.round(totalScore);
+            
+            // 更新分数显示
+            document.getElementById('currentScore').textContent = gameState.score;
+            
+            // 更新环形进度条
+            const scoreRing = document.getElementById('scoreRing');
+            const circumference = 339.292; // 2 * π * 54
+            const offset = circumference - (circumference * (totalScore / 100));
+            scoreRing.style.strokeDashoffset = offset;
+        }
+
+        // 更新实时反馈
+        function updateFeedback(message) {
+            document.getElementById('feedbackContent').textContent = message;
+        }
+
+        // 提交设计
+        function submitDesign() {
+            const scene = gameData.scenes[gameState.currentScene];
+            
+            if (gameState.placedFacilities.length === 0) {
+                updateFeedback("❌ 请至少放置一个设施再提交设计。");
+                return;
+            }
+            
+            // 计算各项指标
+            const spaceUtilization = Math.round((gameState.usedArea / scene.area) * 100);
+            const facilityTypes = new Set(gameState.placedFacilities.map(f => f.id));
+            const diversityCount = facilityTypes.size;
+            const hasAccessibility = gameState.placedFacilities.length >= 3;
+            const budgetUtilization = Math.round((gameState.usedBudget / scene.budget) * 100);
+            
+            // 显示结果模态框
+            showResultModal(spaceUtilization, diversityCount, hasAccessibility, budgetUtilization);
+        }
+
+        // 显示结果模态框
+        function showResultModal(spaceUtilization, diversityCount, hasAccessibility, budgetUtilization) {
+            // 更新最终分数
+            document.getElementById('finalScore').textContent = gameState.score;
+            
+            // 更新等级
+            const grade = getScoreGrade(gameState.score);
+            document.getElementById('scoreGrade').textContent = grade;
+            
+            // 更新详细结果
+            document.getElementById('resultSpace').textContent = `${spaceUtilization}%`;
+            document.getElementById('resultDiversity').textContent = `${diversityCount}种`;
+            document.getElementById('resultAccessibility').textContent = hasAccessibility ? "已实现" : "未实现";
+            document.getElementById('resultBudget').textContent = `${budgetUtilization}%`;
+            
+            // 更新进度条
+            setTimeout(() => {
+                document.getElementById('spaceBar').style.width = `${spaceUtilization}%`;
+                document.getElementById('diversityBar').style.width = `${Math.min(diversityCount / 3 * 100, 100)}%`;
+                document.getElementById('accessibilityBar').style.width = hasAccessibility ? "100%" : "0%";
+                document.getElementById('budgetBar').style.width = `${budgetUtilization}%`;
+            }, 100);
+            
+            // 更新反馈文本
+            const feedback = getFeedbackText(gameState.score, spaceUtilization, diversityCount, hasAccessibility);
+            document.getElementById('resultFeedbackText').textContent = feedback;
+            
+            // 更新改进建议
+            const tips = getImprovementTips(spaceUtilization, diversityCount, hasAccessibility, budgetUtilization);
+            const tipsList = document.getElementById('improvementTips');
+            tipsList.innerHTML = '';
+            
+            tips.forEach(tip => {
+                const li = document.createElement('li');
+                li.textContent = tip;
+                tipsList.appendChild(li);
+            });
+            
+            // 显示模态框
+            document.getElementById('resultModal').classList.add('active');
+        }
+
+        // 获取分数等级
+        function getScoreGrade(score) {
+            if (score >= 90) return "卓越规划师";
+            if (score >= 80) return "优秀规划师";
+            if (score >= 70) return "良好规划师";
+            if (score >= 60) return "合格规划师";
+            return "初级规划师";
+        }
+
+        // 获取反馈文本
+        function getFeedbackText(score, spaceUtilization, diversityCount, hasAccessibility) {
+            let feedback = "";
+            
+            if (score >= 80) {
+                feedback = "优秀的设计！您充分理解了城市空间高效利用的理念。您的规划空间利用率高、设施类型丰富，充分考虑了不同人群的需求。";
+            } else if (score >= 60) {
+                feedback = "良好的设计！您对空间规划有基本理解，但还有提升空间。建议进一步优化设施布局，增加设施多样性。";
+            } else {
+                feedback = "基础设计完成。建议重新考虑设施选择和布局，提高空间利用率和预算效率。";
+            }
+            
+            // 添加具体反馈
+            if (spaceUtilization < 50) {
+                feedback += " 空间利用率偏低，有大量空间未被利用。";
+            }
+            
+            if (diversityCount < 2) {
+                feedback += " 设施类型单一，未能满足多样化健身需求。";
+            }
+            
+            if (!hasAccessibility) {
+                feedback += " 无障碍通道设计不足，可能影响部分人群使用。";
+            }
+            
+            return feedback;
+        }
+
+        // 获取改进建议
+        function getImprovementTips(spaceUtilization, diversityCount, hasAccessibility, budgetUtilization) {
+            const tips = [];
+            
+            if (spaceUtilization < 70) {
+                tips.push("尝试放置更多设施或调整现有设施布局，提高空间利用率");
+            }
+            
+            if (diversityCount < 3) {
+                tips.push("添加不同类型的健身设施，满足儿童、成人、老人等不同人群需求");
+            }
+            
+            if (!hasAccessibility) {
+                tips.push("确保设施之间有足够通道，特别是轮椅通行空间");
+            }
+            
+            if (budgetUtilization < 60) {
+                tips.push("预算使用不足，可以考虑添加更多设施或选择更优质的设施类型");
+            } else if (budgetUtilization > 95) {
+                tips.push("预算使用过高，可能需要减少设施数量或选择更经济的设施");
+            }
+            
+            if (tips.length === 0) {
+                tips.push("设计已经很完善！可以尝试挑战更高难度的场景");
+            }
+            
+            return tips;
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('active');
+        }
+
+        // 重新设计
+        function tryAgain() {
+            closeModal();
+            clearDesign();
+        }
+
+        // 下一个场景
+        function nextScene() {
+            closeModal();
+            
+            const scenes = Object.keys(gameData.scenes);
+            const currentIndex = scenes.indexOf(gameState.currentScene);
+            const nextIndex = (currentIndex + 1) % scenes.length;
+            
+            // 切换到下一个场景
+            const nextSceneId = scenes[nextIndex];
+            const nextSceneTab = document.querySelector(`.scene-tab[data-scene="${nextSceneId}"]`);
+            
+            // 模拟点击场景标签
+            nextSceneTab.click();
+        }
+
+        // 切换游戏说明
+        function toggleInstructions() {
+            const content = document.getElementById('instructionsContent');
+            const toggleBtn = document.getElementById('toggleInstructions');
+            const icon = toggleBtn.querySelector('i');
+            
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'grid';
+                icon.className = 'fas fa-chevron-up';
+            } else {
+                content.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+            }
+        }
+
+        // 页面加载完成后初始化游戏
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
